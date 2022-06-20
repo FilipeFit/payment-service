@@ -12,10 +12,10 @@ import (
 	"log"
 )
 
-func ChangeAccountBalance(request *api.PaymentRequest) (*api.PaymentResponse, error) {
+func ChangeAccountBalance(request *api.PaymentRequest, authorization string) (*api.PaymentResponse, error) {
 	url := fmt.Sprintf("%s%s", config.Config.AccountServiceUrl, "/balances")
 
-	response, err := restclient.Post(url, request, nil)
+	response, err := restclient.Post(url, authorization, request, nil)
 	if err != nil {
 		log.Println(fmt.Sprintf("error in performing the payment in the account service %s", err.Error()))
 		return nil, err
@@ -34,11 +34,14 @@ func ChangeAccountBalance(request *api.PaymentRequest) (*api.PaymentResponse, er
 	}(response.Body)
 
 	if response.StatusCode != 201 {
+		log.Println(fmt.Sprintf("accounts status code ===> %d", response.StatusCode))
 		log.Println("the response of the account service is an error")
 		var errorResponse api.ErrorResponse
+		log.Println(fmt.Sprintf("accounts error ===> %s", errorResponse))
 		if err := json.Unmarshal(bytes, &errorResponse); err != nil {
+
 			return nil, errors.New(
-				fmt.Sprintf("Unknown error in calling the accoutns service %s", err.Error()))
+				fmt.Sprintf("Unknown error in calling the accounts service %s", err.Error()))
 		}
 		return nil, errors.New(errorResponse.Message)
 	}

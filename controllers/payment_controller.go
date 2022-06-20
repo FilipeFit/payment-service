@@ -20,8 +20,8 @@ func CreatePayment(c *gin.Context) {
 		c.JSON(apiErr.ResponseStatus(), apiErr)
 		return
 	}
-
-	response, err := paymentService.CreatePayment(&request)
+	authorization := c.Request.Header.Get("Authorization")
+	response, err := paymentService.CreatePayment(&request, authorization)
 	if err != nil {
 		c.JSON(err.ResponseStatus(), err)
 		return

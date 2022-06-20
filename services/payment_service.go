@@ -12,7 +12,7 @@ import (
 type paymentService struct{}
 
 type paymentServiceInterface interface {
-	CreatePayment(request *api.CreatePaymentRequest) (*api.CreatePaymentResponse, handlers.ApiError)
+	CreatePayment(request *api.CreatePaymentRequest, authorization string) (*api.CreatePaymentResponse, handlers.ApiError)
 	FindByAccountID(accountID uint64) ([]api.CreatePaymentResponse, handlers.ApiError)
 }
 
@@ -25,13 +25,13 @@ func init() {
 	PaymentService = &paymentService{}
 }
 
-func (s *paymentService) CreatePayment(request *api.CreatePaymentRequest) (*api.CreatePaymentResponse, handlers.ApiError) {
+func (s *paymentService) CreatePayment(request *api.CreatePaymentRequest, authorization string) (*api.CreatePaymentResponse, handlers.ApiError) {
 	accountCreatePayment := api.PaymentRequest{
 		AccountID: request.AccountId,
 		Type:      request.Type,
 		Amount:    request.Amount,
 	}
-	accountBalance, err := client.ChangeAccountBalance(&accountCreatePayment)
+	accountBalance, err := client.ChangeAccountBalance(&accountCreatePayment, authorization)
 	if err != nil {
 		return nil, handlers.NewApiError(http.StatusBadRequest, err.Error())
 	}
